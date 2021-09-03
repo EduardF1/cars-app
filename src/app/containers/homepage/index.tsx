@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
+import { Bookingcard } from '../../components/bookingcard';
 import { Navbar } from '../../components/navbar';
 import { TopSection } from './topSection';
 
@@ -21,6 +22,7 @@ export function Homepage() {
         <PageContainer>
             <Navbar/>
             <TopSection/>
+            <Bookingcard/>
         </PageContainer>
     )
 }
