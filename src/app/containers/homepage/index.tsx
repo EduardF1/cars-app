@@ -4,6 +4,7 @@ import tw from 'twin.macro';
 import { Bookingcard } from '../../components/bookingcard';
 import { Marginer } from '../../components/marginer';
 import { Navbar } from '../../components/navbar';
+import { AboutUs } from './aboutUs';
 import { BookingSteps } from './bookingSteps';
 import { TopSection } from './topSection';
 
@@ -27,6 +28,8 @@ export function Homepage() {
             <Bookingcard/>
             <Marginer direction={'vertical'} margin = {'8em'}/>
             <BookingSteps/>
+            <Marginer direction={'vertical'} margin = {'5em'}/>
+            <AboutUs/>
         </PageContainer>
     )
 }
