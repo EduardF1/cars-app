@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import { Bookingcard } from '../../components/bookingcard';
+import { Marginer } from '../../components/marginer';
 import { Navbar } from '../../components/navbar';
 import { TopSection } from './topSection';
 
 const PageContainer = styled.div`
-  overflow: hidden;
   ${tw`
     flex
     flex-col
@@ -22,6 +22,7 @@ export function Homepage() {
         <PageContainer>
             <Navbar/>
             <TopSection/>
+            <Marginer direction={'vertical'} margin = {'4em'}/>
             <Bookingcard/>
         </PageContainer>
     )
