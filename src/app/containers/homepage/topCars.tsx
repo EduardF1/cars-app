@@ -2,12 +2,18 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import {Car} from '../../components/car';
-import {cars} from '../../test-data/cars'
 import Carousel, {Dots, slidesToShowPlugin} from '@brainhubeu/react-carousel';
 import '@brainhubeu/react-carousel/lib/style.css';
 import {useMediaQuery} from 'react-responsive';
 import {SCREENS} from '../../components/responsive';
 import carService from '../../services/car-service';
+import {Dispatch} from '@reduxjs/toolkit';
+import {GetCars_cars} from '../../services/car-service/__generated__/GetCars';
+import {setTopCars} from './slice';
+import {useDispatch, useSelector} from 'react-redux';
+import {createSelector} from 'reselect';
+import {makeSelectTopCars} from './selectors';
+import {MoonLoader} from 'react-spinners';
 
 const TopCarsContainer = styled.div`
   ${tw`
@@ -45,34 +51,77 @@ const CarsContainer = styled.div`
   `};
 `;
 
+const EmptyCars = styled.div`
+  ${tw`
+    w-full
+    flex
+    justify-center
+    items-center
+    text-sm
+    text-gray-500
+  `};
+`;
+
+const LoadingContainer = styled.div`
+  ${tw`
+    w-full
+    flex
+    mt-9
+    justify-center
+    items-center
+    text-base
+    text-black
+  `};
+`;
+
+// state change
+const actionDispatch = (dispatch: Dispatch) => ({
+    setTopCars: (cars: GetCars_cars[]) => dispatch(setTopCars(cars)),
+});
+
+const stateSelector = createSelector(makeSelectTopCars, (topCars) => ({
+    topCars
+}));
+
+const wait = (timeout: number) => new Promise((resolve => setTimeout(resolve, timeout)));
+
 export function TopCars() {
     const [current, setCurrent] = useState(0);
+    const [isLoading, setLoading] = useState(false);
     const isMobile = useMediaQuery({maxWidth: SCREENS.sm});
-    const numberOfDots = isMobile ? cars.length : Math.ceil(cars.length / 3);
+    const {topCars} = useSelector(stateSelector);
+    const {setTopCars} = actionDispatch(useDispatch());
     const fetchTopCars = async () => {
-      const cars = await carService.getCars().catch((err) => {
-         console.error(err);
-      });
-      console.log('Cars:', cars);
+        setLoading(true);
+        const cars = await carService.getCars().catch((err) => {
+            console.error(err);
+        });
+
+        //await wait(5000); // spinner test
+        console.log('Cars:', cars);
+        if (cars) setTopCars(cars);
+        setLoading(false);
     };
     useEffect(() => {
         fetchTopCars();
     }, []);
 
+    const isEmptyTopCars = !topCars || topCars.length === 0;
+    const cars = !isEmptyTopCars && topCars.map((car) => <Car {...car} thumbnailSrc={car.thumbnailUrl}/>) || [];
+    const numberOfDots = isMobile ? cars.length : Math.ceil(cars.length / 3);
+
     return (
         <TopCarsContainer>
             <Title>Explore Our Top Deals</Title>
-            <CarsContainer>
+            {isLoading && <LoadingContainer>
+                <MoonLoader loading size={20}/>
+            </LoadingContainer>}
+            {isEmptyTopCars && !isLoading && <EmptyCars>No Cars Available.</EmptyCars>}
+            {!isEmptyTopCars && !isLoading && <CarsContainer>
                 <Carousel
                     value={current}
                     onChange={setCurrent}
-                    slides={[
-                        (<Car {...cars[0]}/>),
-                        (<Car {...cars[1]}/>),
-                        (<Car {...cars[2]}/>),
-                        (<Car {...cars[3]}/>),
-                        (<Car {...cars[4]}/>)
-                    ]}
+                    slides={cars}
                     plugins={[
                         'clickToChange',
                         {
@@ -106,7 +155,7 @@ export function TopCars() {
                     }}
                 />
                 <Dots value={current} onChange={setCurrent} number={numberOfDots}/>
-            </CarsContainer>
+            </CarsContainer>}
         </TopCarsContainer>
     )
 }

@@ -10,7 +10,7 @@ class CarService {
                 throw err;
             });
         console.log(response)
-        if (response && response.data && response.data.cars)
+        if (response && response.data && response.data.cars && response.data.cars)
             return response.data.cars as GetCars_cars[];
 
         return [];
